@@ -1,0 +1,56 @@
+---
+title: The Karaoke Collective Songlist
+format: html
+execute:
+  echo: false
+---
+
+```{r}
+#| label: load packages
+#| include: false
+library(reactable)
+library(tidyverse)
+library(htmltools)
+
+#library(googlesheets4)
+#read_sheet("https://docs.google.com/spreadsheets/d/1XiFg2oZgTfmruQQW7kpmxvW9aYP_lF8r40WaCIsmjoE/edit?usp=sharing", sheet = "songlist") |> 
+#  write_csv("songlist.csv")
+
+songlist <- read_csv("songlist.csv") |> 
+  distinct(song_title, artist)
+```
+
+```{css}
+#songlist-table .rt-search {
+  display: none;
+}
+#custom-search {
+  margin-bottom: 10px;
+}
+#title-block-header {
+  margin-top: 1em;
+  margin-bottom: 1.5em;
+}
+```
+
+```{r}
+songlist_table <- songlist |> 
+  select(Song = song_title, Artist = artist) |> 
+  reactable(elementId = "songlist-table",
+            searchable = TRUE,
+            pagination = FALSE,
+            height = 800)
+tagList(
+    div(tags$input(
+          type = "text",
+          class = "rt-search",
+          id = "custom-search",
+          placeholder = glue::glue("Search {nrow(songlist)} songs"),
+          oninput = "Reactable.setSearch('songlist-table', this.value)"
+        )),
+    songlist_table
+)
+
+
+
+```
